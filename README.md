@@ -1,2 +1,2 @@
 # GeekBrainsJS2
-Lessons
+Lessons 2
