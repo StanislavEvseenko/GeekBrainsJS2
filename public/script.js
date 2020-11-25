@@ -1,159 +1,35 @@
-
-// Массив для корзины
-const BasketMassive = {
-    massive: [],
-    
-    // добавить товар в массив
-    addMassive(name, price) {
-        const massiveItem = new NewMassiveItem(name, price);
-        this.massive.push(massiveItem);
-    },
-
-    dellMassive(id) {
-        this.massive.splice(id, 1);
-    }
-
-}
-// Новый элемент массива корзины
-class NewMassiveItem {
-    name = '';
-    price = 0;
-    amount = 1;
-
-    constructor(name, price) {
-        this.name = name;
-        this.price = price;
-    }
-}
-
-
-
-class CreateItem {
-    name = '';
-    price = 1;
-    place = '';
-    number = 0;
-    buttonInnerText = '';
-    
-
-    constructor({ name, price }, index) {
-        this.name = name;
-        this.price = price;
-        this.number = index;
-    }
-
-    createButton() {
-        const button = document.createElement('button');
-        button.innerText = this.buttonInnerText;
-        button.id = 'btn-' + this.number;
-        
-        button.addEventListener('click', this.buttonClick);
-        return button;
-    }
-
-    render() {
-        const placeToRender = document.querySelector(this.place);
-
-        if (placeToRender) {
-            const innerH = document.createElement('h3');
-            innerH.innerHTML = `${this.name}`;
-            const innerP = document.createElement('p');
-            innerP.innerHTML = `${this.price}`;
-
-            
-
-
-            const block = document.createElement('div');
-            block.id = 'div-' + this.number;
-            block.classList.add('list-item');
-            block.appendChild(innerH);
-            block.appendChild(innerP);
-
-            // СОЗДАНИЕ КНОПКИ
-            const button = this.createButton(this.buttonAction);
-
-            block.appendChild(button);
-
-            placeToRender.appendChild(block);
-        }
-    }
-}
-
-class GoodItem extends CreateItem {
-    place = '.goods-list';
-    buttonInnerText = '+';
-    
-    constructor(i, j) {
-        super(i, j);
-    }
-
-    buttonClick() {
-        // получили доступ к карточке нашего товара
-        const thisGood = document.querySelector('.goods-list').querySelector(`#div-${this.id.split('-')[1]}`);
-        // взяли название и цену
-        const thisName = thisGood.querySelector('h3').innerText;
-        const thisPrice = thisGood.querySelector('p').innerText;
-        BasketMassive.addMassive(thisName, thisPrice);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
-
-    }
-}
-
-class BasketItem extends CreateItem {
-    place = '.basket-list';
-    buttonInnerText = '-';
-    buttonAction = BasketMassive.dellMassive;
-    
-    constructor(i, j) {
-        super(i, j);
-    }
-
-    buttonClick() {
-        // взяли индекс кнопки
-        const thisId = this.id.split('-')[1];
-        // и передали его
-        BasketMassive.dellMassive(thisId);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
-
-    }
-    
-}
-
-
 class List {
-    items = [];
-
-    constructor(i) {
-        let goods = this.fetchGoods();
-
+    items = []
+  
+    constructor (item) {
+        let goods = this.fetchGoods()
         goods = goods.map((cur, index) => {
-            return new i(cur, index);
-        });
-
-        this.items.push(...goods);
-
-        this.render();
+            return new item(cur, index)
+        })
+        this.items.push(...goods)
+        this.render()
     }
-
-    fetchGoods() {
+  
+    fetchGoods () {
         return [
-            { name: 'apple', price: 11500 }
-          ] 
+            { name: 'Shirt', price: 150 },
+            { name: 'Socks', price: 15 },
+            { name: 'Jacket', price: 50 },
+            { name: 'Shoes', price: 1500 },
+        ]
     }
-
-    render() {
+  
+    render () {
         this.items.forEach(good => {
             good.render()
         })
-      }
+    }
 }
 
 class GoodsList extends List {
     
     constructor(i) {
-        super(i);
+        super(i)
     }
 
     fetchGoods() {
@@ -174,20 +50,231 @@ class GoodsList extends List {
     }
 }
 
-class BasketList extends List {
+const BasketMassive = {
+    massive: [],
+
+    sumPrice() {
+        let itemsPrice = 0
+        this.massive.forEach(item => {
+            const itemPrice = item.price * item.amount
+            itemsPrice += itemPrice
+        });
+        document.querySelector('.basket-sum').innerText = itemsPrice
+    },
     
+    addMassive(name, price) {
+        const massiveItem = new NewMassiveItem(name, price)
+        
+        if (BasketMassive.massive.length == 0) {
+            BasketMassive.massive.push(massiveItem)
+            
+        } else {
+            var keyItem = false
+            var index = 0
+            while (index < BasketMassive.massive.length) {
+                    if (massiveItem.name === this.massive[index].name) {
+                        this.increaseAmount(index)
+                        keyItem = true
+                        break
+                    } 
+                    index++
+            }
+            if (keyItem != true) {
+                BasketMassive.massive.push(massiveItem)
+                keyItem = true
+            }
+        }
+    },
+
+    reduceAmount(id)  {
+        const item = --this.massive[id].amount
+        if (item == 0) {
+            this.dellMassive(id)
+        }
+    },
+
+    increaseAmount(id) {
+        ++this.massive[id].amount
+    },
+
+    dellMassive(id) {
+        this.massive.splice(id, 1);
+    }
+}
+
+class NewMassiveItem {
+    name = ''
+    price = 0
+    amount = 1
+
+    constructor(name, price) {
+        this.name = name
+        this.price = price
+    }
+}
+
+class BasketList extends List {
     constructor(i) {
-        super(i);
+        super(i)
     }
 
     fetchGoods() {
-        return BasketMassive.massive;
+        return BasketMassive.massive
+    }
+}
+
+class CreateItem {
+    name = 'item'
+    price = 0
+    number = 0
+    class = 'list_item'
+    place = 'list'
+    amount = 1
+    
+    constructor ({ name, price, amount }, index) {
+        this.name = name
+        this.price = price
+        this.number = index
+        this.amount = amount
+    }
+
+    renderbutton() {
+        return new GoodsItemButton(this.number).render()
+    }
+  
+    render () {
+        const placeToRender = document.querySelector(this.place)
+        if (placeToRender) {
+            const block = document.createElement('div')
+            const itemName = document.createElement('h3')
+            const itemPrice = document.createElement('p')
+            const itemButton = this.renderbutton()
+        	itemName.innerHTML = `${this.name}`
+            itemPrice.innerHTML = `${this.price}`
+            block.id = 'div-' + this.number
+            block.classList.add(this.class)
+            block.appendChild(itemName)
+            block.appendChild(itemPrice)
+            block.appendChild(itemButton)
+            placeToRender.appendChild(block)
+        }
+    }
+}
+
+class GoodsItem extends CreateItem {
+    class = 'goods-list_item'
+    place = '.goods-list'
+    
+    constructor(i, j) {
+        super(i, j)
+    }
+
+    renderbutton() {
+        return new GoodsItemButton(this.number).render()
+    }
+}
+
+class BasketItem extends CreateItem {
+    class = 'basket-list_item'
+    place = '.basket-list'
+    
+    constructor(i, j) {
+        super(i, j)
+    }
+
+    renderbutton() {
+        let amount = this.amount
+        const div = document.createElement('div')
+        const btn1 = new BasketItemButtonDell(this.number).render()
+        const span = document.createElement('span')
+        span.innerText = amount
+        const btn2 = new BasketItemButtonAdd(this.number).render()
+        div.appendChild(btn1)
+        div.appendChild(span)
+        div.appendChild(btn2)
+        return div
     }
 }
 
 
-const ListInstance = new GoodsList(GoodItem);
-const ListInstanc = new BasketList(BasketItem);
 
+class Button {
+    text = 'Button'
+    id = ''
+   
+    constructor(id) {
+        this.id = id
+    }
 
+    action() {
+        console.log('Clicked')
+    }
+    
+    idGenerate() {
+        let id = 'btn-' + this.id
+        return id
+    }
+    
+    render() {
+        const button = document.createElement('button')
+        button.innerText = this.text
+        button.id = this.idGenerate()
+        button.addEventListener('click', this.action)
+        return button
+    }
+}
 
+class GoodsItemButton extends Button {
+    text = 'Добавить в корзину'
+
+    constructor(i) {
+        super(i)
+    }
+
+    action() {
+        const thisGood = document.querySelector('.goods-list').querySelector(`#div-${this.id.split('-')[1]}`);
+        const thisName = thisGood.querySelector('h3').innerText;
+        const thisPrice = thisGood.querySelector('p').innerText;
+        BasketMassive.addMassive(thisName, thisPrice);
+        document.querySelector('.basket-list').innerHTML = '';
+        new BasketList(BasketItem);
+        BasketMassive.sumPrice()
+    }
+}
+
+class BasketItemButtonDell extends Button {
+    text = '--'
+
+    constructor(i) {
+        super(i)
+    }
+
+    action() {
+        const thisId = this.id.split('-')[1];
+        BasketMassive.reduceAmount(thisId);
+        document.querySelector('.basket-list').innerHTML = '';
+        new BasketList(BasketItem);
+        BasketMassive.sumPrice()
+    }
+
+}
+
+class BasketItemButtonAdd extends Button {
+    text = '+'
+
+    constructor(i) {
+        super(i)
+    }
+
+    action() {
+        const thisId = this.id.split('-')[1];
+        BasketMassive.increaseAmount(thisId);
+        document.querySelector('.basket-list').innerHTML = '';
+        new BasketList(BasketItem);
+        BasketMassive.sumPrice()
+    }
+
+}
+
+new GoodsList(GoodsItem)
+new BasketList(BasketItem);
