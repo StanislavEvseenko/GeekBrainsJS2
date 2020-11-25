@@ -189,9 +189,11 @@ class BasketItem extends CreateItem {
         const span = document.createElement('span')
         span.innerText = amount
         const btn2 = new BasketItemButtonAdd(this.number).render()
+        const btn3 = new BasketItemButtonDellAll(this.number).render()
         div.appendChild(btn1)
         div.appendChild(span)
         div.appendChild(btn2)
+        div.appendChild(btn3)
         return div
     }
 }
@@ -257,6 +259,22 @@ class BasketItemButtonDell extends Button {
         BasketMassive.sumPrice()
     }
 
+}
+
+class BasketItemButtonDellAll extends Button {
+    text = 'Удалить всё'
+
+    constructor(i) {
+        super(i)
+    }
+
+    action() {
+        const thisId = this.id.split('-')[1];
+        BasketMassive.dellMassive(thisId);
+        document.querySelector('.basket-list').innerHTML = '';
+        new BasketList(BasketItem);
+        BasketMassive.sumPrice()
+    }
 }
 
 class BasketItemButtonAdd extends Button {
