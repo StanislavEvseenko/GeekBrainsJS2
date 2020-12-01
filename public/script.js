@@ -1,6 +1,6 @@
 class List {
     items = []
-  
+
     constructor (item) {
         let goods = this.fetchGoods()
         goods = goods.map((cur, index) => {
@@ -15,7 +15,7 @@ class List {
             { name: 'Shirt', price: 150 },
             { name: 'Socks', price: 15 },
             { name: 'Jacket', price: 50 },
-            { name: 'Shoes', price: 1500 },
+            { name: 'Shoes', price: 1500 }
         ]
     }
   
@@ -26,33 +26,67 @@ class List {
     }
 }
 
-class GoodsList extends List {
+class ListG {
+    items = []
     
-    constructor(i) {
-        super(i)
-    }
 
-    fetchGoods() {
-        return [
-            { name: 'apple', price: 11500 },
-            { name: 'samsung', price: 10450 },
-            { name: 'xiaomi', price: 9020 },
-            { name: 'meizu', price: 108 },
-            { name: 'asus', price: 1500 },
-            { name: 'acer', price: 1350 },
-            { name: 'motorola', price: 980 },
-            { name: 'sony', price: 450 },
-            { name: 'lenovo', price: 378 },
-            { name: 'braun', price: 46 },
-            { name: 'toshiba', price: 578 },
-            { name: 'vitek', price: 4500 },
-        ] 
+    constructor (item) {
+        let goods = this.fetchGoods(item)
+        goods.then(() => {
+            this.render()
+        })
+    }
+    
+    fetchGoods(item) {
+        const result = fetch(`http://localhost:3000/database${DataBase.databaseIndex}.json`)
+        DataBase.databaseIndexAdd()
+        return result
+            .then(res => {
+                return res.json()
+            })
+            .then(data => {
+                this.items = data.data
+                this.items = this.items.map((cur) => {
+                    return new item(cur)
+                })
+            })
+            .catch(res => {
+                console.log(res)
+                alert("Больше товаров нет!")
+            })
+    }
+  
+    render () {
+        this.items.forEach(good => {
+            good.render()
+        })
+    }
+}
+
+class GoodsList extends ListG {
+    
+    constructor(item) {
+        super(item)
+    }
+    
+}
+
+const DataBase = {
+    databaseIndex: 1,
+    itemIndex: 0,
+
+    databaseIndexAdd() {
+        ++this.databaseIndex
+    },
+
+    itemIndexAdd() {
+        ++this.itemIndex
     }
 }
 
 const BasketMassive = {
     massive: [],
-
+    
     sumPrice() {
         let itemsPrice = 0
         this.massive.forEach(item => {
@@ -130,6 +164,7 @@ class CreateItem {
     class = 'list_item'
     place = 'list'
     amount = 1
+    itemindex = 0
     
     constructor ({ name, price, amount }, index) {
         this.name = name
@@ -137,9 +172,8 @@ class CreateItem {
         this.number = index
         this.amount = amount
     }
-
     renderbutton() {
-        return new GoodsItemButton(this.number).render()
+        return new GoodsItemButton(DataBase.itemIndex).render()
     }
   
     render () {
@@ -151,12 +185,14 @@ class CreateItem {
             const itemButton = this.renderbutton()
         	itemName.innerHTML = `${this.name}`
             itemPrice.innerHTML = `${this.price}`
+            // block.id = 'div-' + DataBase.itemIndex
             block.id = 'div-' + this.number
             block.classList.add(this.class)
             block.appendChild(itemName)
             block.appendChild(itemPrice)
             block.appendChild(itemButton)
             placeToRender.appendChild(block)
+            
         }
     }
 }
@@ -165,12 +201,32 @@ class GoodsItem extends CreateItem {
     class = 'goods-list_item'
     place = '.goods-list'
     
-    constructor(i, j) {
-        super(i, j)
+    constructor(i) {
+        super(i)
+    }
+    
+    renderbutton() {
+        return new GoodsItemButton(DataBase.itemIndex).render()
     }
 
-    renderbutton() {
-        return new GoodsItemButton(this.number).render()
+    render () {
+        const placeToRender = document.querySelector(this.place)
+        if (placeToRender) {
+            const block = document.createElement('div')
+            const itemName = document.createElement('h3')
+            const itemPrice = document.createElement('p')
+            const itemButton = this.renderbutton()
+        	itemName.innerHTML = `${this.name}`
+            itemPrice.innerHTML = `${this.price}`
+            block.id = 'div-' + DataBase.itemIndex
+            // block.id = 'div-' + this.number
+            block.classList.add(this.class)
+            block.appendChild(itemName)
+            block.appendChild(itemPrice)
+            block.appendChild(itemButton)
+            placeToRender.appendChild(block)
+            DataBase.itemIndexAdd()
+        }
     }
 }
 
@@ -197,8 +253,6 @@ class BasketItem extends CreateItem {
         return div
     }
 }
-
-
 
 class Button {
     text = 'Button'
@@ -234,12 +288,12 @@ class GoodsItemButton extends Button {
     }
 
     action() {
-        const thisGood = document.querySelector('.goods-list').querySelector(`#div-${this.id.split('-')[1]}`);
-        const thisName = thisGood.querySelector('h3').innerText;
-        const thisPrice = thisGood.querySelector('p').innerText;
-        BasketMassive.addMassive(thisName, thisPrice);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
+        const thisGood = document.querySelector('.goods-list').querySelector(`#div-${this.id.split('-')[1]}`)
+        const thisName = thisGood.querySelector('h3').innerText
+        const thisPrice = thisGood.querySelector('p').innerText
+        BasketMassive.addMassive(thisName, thisPrice)
+        document.querySelector('.basket-list').innerHTML = ''
+        new BasketList(BasketItem)
         BasketMassive.sumPrice()
     }
 }
@@ -294,5 +348,30 @@ class BasketItemButtonAdd extends Button {
 
 }
 
-new GoodsList(GoodsItem)
-new BasketList(BasketItem);
+class GoodsItemsAdd extends Button {
+    text = 'Загрузить еще'
+
+    constructor(i) {
+        super(i)
+    }
+
+    action() {
+        new GoodsList(GoodsItem)
+    }
+
+    render() {
+        const button = document.createElement('button')
+        button.innerText = this.text
+        button.id = this.idGenerate()
+        button.addEventListener('click', this.action)
+        document.querySelector('.goods-button').appendChild(button)
+    }
+
+}
+
+function main() {
+    new GoodsItemsAdd('goods-add').render()
+    new GoodsList(GoodsItem)
+    new BasketList(BasketItem)
+}
+main()
