@@ -38,7 +38,7 @@ class ListG {
     }
     
     fetchGoods(item) {
-        const result = fetch(`http://localhost:3000/database${DataBase.databaseIndex}.json`)
+        const result = fetch(`database${DataBase.databaseIndex}.json`)
         DataBase.databaseIndexAdd()
         return result
             .then(res => {
