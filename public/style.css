@@ -1,0 +1,121 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    display: flex;
+    font-family: 'Roboto', sans-serif;
+    color: rgb(236, 255, 65);
+    background-color: rgb(36, 36, 36);
+}
+.goods-list {
+    width: 100%;
+    height: calc(100vh - 50px);
+    overflow-y: scroll;
+    box-sizing: border-box;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+.goods {
+    width: 50%;
+    height: 100vh;
+    box-sizing: border-box;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+.goods-button {
+    width: 100%;
+    height: 70px;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 15px;
+    background-color:rgb(65, 65, 65);
+}
+.basket {
+    width: 50%;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.basket-list {
+    width: 100%;
+    height: calc(100vh - 50px);
+    overflow-y: scroll;
+    box-sizing: border-box;
+}
+.basket-sum {
+    width: 100%;
+    height: 70px;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 15px;
+    background-color:rgb(65, 65, 65);
+}
+
+
+.goods-list_item {
+    width: 150px;
+    height: 200px;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: rgb(54, 69, 138);
+}
+.basket-list_item {
+    height: 50px;
+    margin: 10px;
+    padding: 10px;
+    text-transform: uppercase;
+    display: flex;
+    /* justify-content: space-between; */
+    box-sizing: border-box;
+    background-color: rgb(54, 69, 138);
+}
+.basket-list_item > :nth-child(1) {
+    margin-right: 20px;
+}
+.basket-list_item > :nth-child(3) {
+    margin-left: auto;
+}
+.basket-list_item > :nth-child(4) {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.basket-list_item > :nth-child(5) {
+    margin-right: 10px;
+}
+
+
+.list_item {
+    width: 150px;
+    height: 200px;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: rgb(54, 69, 138);
+}
+
+.btn {
+    background: rgb(43, 43, 43);
+    border: none !important;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: #ffffff;
+}
+.btn:hover {
+    background: rgb(33, 33, 33);
+    border: none !important;
+}

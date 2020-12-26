@@ -1,0 +1,7 @@
+{
+    "data": [
+        { "name": "motorola", "price": 980 },
+        { "name": "sony", "price": 450 },
+        { "name": "lenovo", "price": 378 }
+      ]
+}
