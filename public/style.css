@@ -27,7 +27,7 @@ body {
 }
 .goods-button {
     width: 100%;
-    height: 50px;
+    height: 70px;
     align-items: center;
     text-align: center;
     box-sizing: border-box;
@@ -49,12 +49,14 @@ body {
 }
 .basket-sum {
     width: 100%;
-    height: 50px;
+    height: 70px;
     text-align: center;
     box-sizing: border-box;
     padding: 15px;
     background-color:rgb(65, 65, 65);
 }
+
+
 .goods-list_item {
     width: 150px;
     height: 200px;
@@ -73,7 +75,47 @@ body {
     padding: 10px;
     text-transform: uppercase;
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     box-sizing: border-box;
     background-color: rgb(54, 69, 138);
+}
+.basket-list_item > :nth-child(1) {
+    margin-right: 20px;
+}
+.basket-list_item > :nth-child(3) {
+    margin-left: auto;
+}
+.basket-list_item > :nth-child(4) {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.basket-list_item > :nth-child(5) {
+    margin-right: 10px;
+}
+
+
+.list_item {
+    width: 150px;
+    height: 200px;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: rgb(54, 69, 138);
+}
+
+.btn {
+    background: rgb(43, 43, 43);
+    border: none !important;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: #ffffff;
+}
+.btn:hover {
+    background: rgb(33, 33, 33);
+    border: none !important;
 }
