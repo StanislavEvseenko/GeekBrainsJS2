@@ -1,377 +1,295 @@
 class List {
     items = []
+    goodsItemClass = null
+    buttonClass = null
+    basketClass = null
+    basketItemClass = null
+    _databaseIndex = 0
 
-    constructor (item) {
-        let goods = this.fetchGoods()
-        goods = goods.map((cur, index) => {
-            return new item(cur, index)
-        })
-        this.items.push(...goods)
-        this.render()
+    constructor(item, button, basket, basItem) {
+        this.goodsItemClass = item
+        this.buttonClass = button
+        this.basketClass = basket
+        this.basketItemClass = basItem
     }
-  
+
     fetchGoods () {
         return [
-            { name: 'Shirt', price: 150 },
-            { name: 'Socks', price: 15 },
-            { name: 'Jacket', price: 50 },
-            { name: 'Shoes', price: 1500 }
+            { "name": "apple", "price": 11500 },
+            { "name": "samsung", "price": 10450 },
+            { "name": "xiaomi", "price": 9020 }
         ]
     }
-  
-    render () {
+
+    render() {
         this.items.forEach(good => {
-            good.render()
+            good.render(this.buttonClass, this.basketClass)
         })
     }
 }
 
-class ListG {
-    items = []
+class GoodsList extends List {
     
+    constructor(item, button, basket, basItem) {
+        super(item, button, basket, basItem)
 
-    constructor (item) {
-        let goods = this.fetchGoods(item)
+        let goods = this.fetchGoods()
         goods.then(() => {
-            this.render()
+            this.render(this.buttonClass)
+            
         })
+        this._buttonLoadMore()
     }
     
-    fetchGoods(item) {
-        const result = fetch(`database${DataBase.databaseIndex}.json`)
-        DataBase.databaseIndexAdd()
-        return result
+    _buttonLoadMore() {
+        const PLACE_TO_RENDER = document.querySelector('.goods-button')
+        const LOAD_MORE = new this.buttonClass('Загрузить еще!', 'load-more', PLACE_TO_RENDER)
+        const BUTTON = document.querySelector('.goods-button .btn')
+        BUTTON.addEventListener('click', () => {
+            this.fetchGoods()
+            .then(() => {
+                this.render(this.buttonClass)
+            })
+        })
+    }
+
+    fetchGoods() {
+        ++this._databaseIndex
+        const RESULT = fetch(`database${this._databaseIndex}.json`)
+        return RESULT
             .then(res => {
                 return res.json()
             })
             .then(data => {
                 this.items = data.data
                 this.items = this.items.map((cur) => {
-                    return new item(cur)
+                    return new this.goodsItemClass(cur)
                 })
             })
             .catch(res => {
+                this.items = []
                 console.log(res)
                 alert("Больше товаров нет!")
             })
     }
-  
-    render () {
-        this.items.forEach(good => {
-            good.render()
-        })
-    }
 }
 
-class GoodsList extends ListG {
-    
-    constructor(item) {
-        super(item)
+class BasketList extends List {
+
+    constructor(item, button, basket, basItem) {
+        super(item, button, basket, basItem)
+        this.sumPrice()
     }
-    
-}
 
-const DataBase = {
-    databaseIndex: 1,
-    itemIndex: 0,
-
-    databaseIndexAdd() {
-        ++this.databaseIndex
-    },
-
-    itemIndexAdd() {
-        ++this.itemIndex
-    }
-}
-
-const BasketMassive = {
-    massive: [],
-    
     sumPrice() {
         let itemsPrice = 0
-        this.massive.forEach(item => {
+        this.items.forEach(item => {
             const itemPrice = item.price * item.amount
             itemsPrice += itemPrice
         });
         document.querySelector('.basket-sum').innerText = itemsPrice
-    },
-    
-    addMassive(name, price) {
-        const massiveItem = new NewMassiveItem(name, price)
+    }
+
+    addMassive(name, price, action) {
+        const BASKET = document.querySelector('.basket-list')
+        BASKET.innerHTML = ''
+        let goods = this.fetchGoods(name, price, action)
+        goods.then(() => {
+            this.render(this.buttonClass)
+        })
         
-        if (BasketMassive.massive.length == 0) {
-            BasketMassive.massive.push(massiveItem)
-            
-        } else {
-            var keyItem = false
-            var index = 0
-            while (index < BasketMassive.massive.length) {
-                    if (massiveItem.name === this.massive[index].name) {
+    }
+
+    buttonAction() {
+        const BASKET = document.querySelector('.basket-list')
+        BASKET.innerHTML = ''
+        let goods = this.mappingItems()
+        goods.then(() => {
+            this.render(this.buttonClass)
+        })
+        
+    }
+
+    mappingItems() {
+        const PROMISE_RES = Promise.resolve()
+        return PROMISE_RES
+        .then(() => {
+            this.items = this.items.map((cur) => {
+                return new this.basketItemClass(cur, this)
+            })
+        })
+    }
+
+    fetchGoods(name, price) {
+        let NEW_ITEM = { "name": name, "price": price }
+        const PROMISE_RES = Promise.resolve(NEW_ITEM)
+        return PROMISE_RES
+        .then(res => {
+            if (this.items.length == 0) {
+                this.items.push(res)
+            } else {
+                var keyItem = false
+                var index = 0
+                while (index < this.items.length) {
+                    if (res.name === this.items[index].name) {
                         this.increaseAmount(index)
                         keyItem = true
                         break
-                    } 
+                    }
                     index++
+                }
+                if (keyItem != true) {
+                    this.items.push(res)
+                    keyItem = true
+                }
             }
-            if (keyItem != true) {
-                BasketMassive.massive.push(massiveItem)
-                keyItem = true
-            }
-        }
-    },
+            this.items = this.items.map((cur) => {
+                return new this.basketItemClass(cur, this)
+            })
+        })
+        .catch(res => {
+            console.log(res)
+        })
+    }
 
     reduceAmount(id)  {
-        const item = --this.massive[id].amount
+        const item = --this.items[id].amount
         if (item == 0) {
             this.dellMassive(id)
         }
-    },
+    }
 
     increaseAmount(id) {
-        ++this.massive[id].amount
-    },
+        ++this.items[id].amount
+    }
 
     dellMassive(id) {
-        this.massive.splice(id, 1);
+        this.items.splice(id, 1)
     }
+
 }
 
-class NewMassiveItem {
-    name = ''
+class GoodsItem {
+    name = 'Товар'
     price = 0
-    amount = 1
 
-    constructor(name, price) {
+    constructor({name, price}) {
         this.name = name
         this.price = price
     }
-}
 
-class BasketList extends List {
-    constructor(i) {
-        super(i)
-    }
-
-    fetchGoods() {
-        return BasketMassive.massive
-    }
-}
-
-class CreateItem {
-    name = 'item'
-    price = 0
-    number = 0
-    class = 'list_item'
-    place = 'list'
-    amount = 1
-    itemindex = 0
-    
-    constructor ({ name, price, amount }, index) {
-        this.name = name
-        this.price = price
-        this.number = index
-        this.amount = amount
-    }
-    renderbutton() {
-        return new GoodsItemButton(DataBase.itemIndex).render()
-    }
-  
-    render () {
-        const placeToRender = document.querySelector(this.place)
-        if (placeToRender) {
-            const block = document.createElement('div')
-            const itemName = document.createElement('h3')
-            const itemPrice = document.createElement('p')
-            const itemButton = this.renderbutton()
-        	itemName.innerHTML = `${this.name}`
-            itemPrice.innerHTML = `${this.price}`
-            // block.id = 'div-' + DataBase.itemIndex
-            block.id = 'div-' + this.number
-            block.classList.add(this.class)
-            block.appendChild(itemName)
-            block.appendChild(itemPrice)
-            block.appendChild(itemButton)
-            placeToRender.appendChild(block)
-            
+    render(buttonClass, basketClass) {
+        const PLACE_TO_RENDER = document.querySelector('.goods-list')
+        if (PLACE_TO_RENDER) {
+            const GOODS = PLACE_TO_RENDER.querySelectorAll('.goods-list_item').length + 1
+            const DIV = document.createElement('div')
+            DIV.classList.add('goods-list_item')
+            DIV.id = `good-${GOODS}`
+            DIV.innerHTML = `
+                <h3>${this.name}</h3>
+                <span>${this.price}</span>
+            `
+            const ITEM_ADD = new buttonClass('Добавить в корзину', `item-add-${GOODS}`, DIV)
+            const BUTTON = DIV.querySelector('button')
+            BUTTON.addEventListener('click', () => {
+                basketClass.addMassive(this.name, this.price)
+                const PROMISE_RES = Promise.resolve()
+                return PROMISE_RES
+                .then(() => {
+                    basketClass.sumPrice()
+                })
+                
+            })
+            PLACE_TO_RENDER.appendChild(DIV)
         }
     }
 }
 
-class GoodsItem extends CreateItem {
-    class = 'goods-list_item'
-    place = '.goods-list'
-    
-    constructor(i) {
-        super(i)
-    }
-    
-    renderbutton() {
-        return new GoodsItemButton(DataBase.itemIndex).render()
-    }
-
-    render () {
-        const placeToRender = document.querySelector(this.place)
-        if (placeToRender) {
-            const block = document.createElement('div')
-            const itemName = document.createElement('h3')
-            const itemPrice = document.createElement('p')
-            const itemButton = this.renderbutton()
-        	itemName.innerHTML = `${this.name}`
-            itemPrice.innerHTML = `${this.price}`
-            block.id = 'div-' + DataBase.itemIndex
-            // block.id = 'div-' + this.number
-            block.classList.add(this.class)
-            block.appendChild(itemName)
-            block.appendChild(itemPrice)
-            block.appendChild(itemButton)
-            placeToRender.appendChild(block)
-            DataBase.itemIndexAdd()
-        }
-    }
-}
-
-class BasketItem extends CreateItem {
-    class = 'basket-list_item'
-    place = '.basket-list'
-    
-    constructor(i, j) {
-        super(i, j)
-    }
-
-    renderbutton() {
-        let amount = this.amount
-        const div = document.createElement('div')
-        const btn1 = new BasketItemButtonDell(this.number).render()
-        const span = document.createElement('span')
-        span.innerText = amount
-        const btn2 = new BasketItemButtonAdd(this.number).render()
-        const btn3 = new BasketItemButtonDellAll(this.number).render()
-        div.appendChild(btn1)
-        div.appendChild(span)
-        div.appendChild(btn2)
-        div.appendChild(btn3)
-        return div
-    }
-}
-
-class Button {
-    text = 'Button'
-    id = ''
+class BasketItem extends GoodsItem {
+    amount = 1
+    basket = null
    
-    constructor(id) {
-        this.id = id
+    constructor({name, price, amount}, basket) {
+        super({name, price})
+        if (amount) {
+            this.amount = amount
+        }
+        this.basket = basket
     }
 
-    action() {
-        console.log('Clicked')
-    }
-    
-    idGenerate() {
-        let id = 'btn-' + this.id
-        return id
-    }
-    
-    render() {
-        const button = document.createElement('button')
-        button.innerText = this.text
-        button.id = this.idGenerate()
-        button.addEventListener('click', this.action)
-        return button
-    }
-}
-
-class GoodsItemButton extends Button {
-    text = 'Добавить в корзину'
-
-    constructor(i) {
-        super(i)
-    }
-
-    action() {
-        const thisGood = document.querySelector('.goods-list').querySelector(`#div-${this.id.split('-')[1]}`)
-        const thisName = thisGood.querySelector('h3').innerText
-        const thisPrice = thisGood.querySelector('p').innerText
-        BasketMassive.addMassive(thisName, thisPrice)
-        document.querySelector('.basket-list').innerHTML = ''
-        new BasketList(BasketItem)
-        BasketMassive.sumPrice()
-    }
-}
-
-class BasketItemButtonDell extends Button {
-    text = '--'
-
-    constructor(i) {
-        super(i)
-    }
-
-    action() {
-        const thisId = this.id.split('-')[1];
-        BasketMassive.reduceAmount(thisId);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
-        BasketMassive.sumPrice()
-    }
-
-}
-
-class BasketItemButtonDellAll extends Button {
-    text = 'Удалить всё'
-
-    constructor(i) {
-        super(i)
-    }
-
-    action() {
-        const thisId = this.id.split('-')[1];
-        BasketMassive.dellMassive(thisId);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
-        BasketMassive.sumPrice()
+    render(buttonClass) {
+        const PLACE_TO_RENDER = document.querySelector('.basket-list')
+        if (PLACE_TO_RENDER) {
+            const GOODS = PLACE_TO_RENDER.querySelectorAll('.basket-list_item').length
+            const DIV = document.createElement('div')
+            DIV.classList.add('basket-list_item')
+            DIV.id = `basket-good-${GOODS}`
+            DIV.innerHTML = `
+                <h3>${this.name}</h3>
+                <span>${this.price}</span>
+            `
+            const ITEM_ADD = new buttonClass('+', `item-add-${GOODS}`, DIV)
+            const AMOUNT = document.createElement('span')
+            AMOUNT.innerText = this.amount
+            DIV.appendChild(AMOUNT)
+            const ITEM_DELL = new buttonClass('-', `item-dell-${GOODS}`, DIV)
+            const ITEM_ERASE = new buttonClass('Удалить', `item-erase-${GOODS}`, DIV)
+            const BUTTON_ADD = DIV.querySelector(`#btn-item-add-${GOODS}`)
+            BUTTON_ADD.addEventListener('click', () => {
+                this.basket.increaseAmount(GOODS)
+                this.basket.sumPrice()
+                const PROMISE_RES = Promise.resolve()
+                return PROMISE_RES
+                .then(() => {
+                    this.basket.buttonAction()
+                    return
+                })
+            })
+            const BUTTON_DELL = DIV.querySelector(`#btn-item-dell-${GOODS}`)
+            BUTTON_DELL.addEventListener('click', () => {
+                this.basket.reduceAmount(GOODS)
+                this.basket.sumPrice()
+                const PROMISE_RES = Promise.resolve()
+                return PROMISE_RES
+                .then(() => {
+                    this.basket.buttonAction()
+                    return
+                })
+            })
+            const BUTTON_ERASE = DIV.querySelector(`#btn-item-erase-${GOODS}`)
+            BUTTON_ERASE.addEventListener('click', () => {
+                this.basket.dellMassive(GOODS)
+                this.basket.sumPrice()
+                const PROMISE_RES = Promise.resolve()
+                return PROMISE_RES
+                .then(() => {
+                    this.basket.buttonAction()
+                    return
+                })
+            })
+            PLACE_TO_RENDER.appendChild(DIV)
+        }
     }
 }
 
-class BasketItemButtonAdd extends Button {
-    text = '+'
+class CreateButton {
+    _innerText = 'Кнопка'
+    _id = ''
 
-    constructor(i) {
-        super(i)
+    constructor(text, id, place) {
+        this._innerText = text
+        this._id = id
+        this.render(place)
     }
 
-    action() {
-        const thisId = this.id.split('-')[1];
-        BasketMassive.increaseAmount(thisId);
-        document.querySelector('.basket-list').innerHTML = '';
-        new BasketList(BasketItem);
-        BasketMassive.sumPrice()
+    render(placeToRender) {
+        const BUTTON = document.createElement('button')
+        BUTTON.innerText = this._innerText
+        BUTTON.classList.add('btn')
+        BUTTON.id = `btn-${this._id}`
+        placeToRender.appendChild(BUTTON)
     }
-
 }
 
-class GoodsItemsAdd extends Button {
-    text = 'Загрузить еще'
-
-    constructor(i) {
-        super(i)
-    }
-
-    action() {
-        new GoodsList(GoodsItem)
-    }
-
-    render() {
-        const button = document.createElement('button')
-        button.innerText = this.text
-        button.id = this.idGenerate()
-        button.addEventListener('click', this.action)
-        document.querySelector('.goods-button').appendChild(button)
-    }
-
-}
-
-function main() {
-    new GoodsItemsAdd('goods-add').render()
-    new GoodsList(GoodsItem)
-    new BasketList(BasketItem)
-}
-main()
+const BASKET_LIST = new BasketList(GoodsItem, CreateButton, BasketList, BasketItem)
+const GOODS_LIST = new GoodsList(GoodsItem, CreateButton, BASKET_LIST, BasketItem)
