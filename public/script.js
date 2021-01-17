@@ -355,6 +355,6 @@ class CreateForm {
     }
 }
 
-const BASKET_LIST = new BasketList(GoodsItem, CreateButton, BasketList, BasketItem)
-const GOODS_LIST = new GoodsList(GoodsItem, CreateButton, BASKET_LIST, BasketItem)
-const FORM = new CreateForm(CreateButton)
+const BASKET_LIST = new BasketList( GoodsItem, CreateButton, BasketList, BasketItem )
+const GOODS_LIST = new GoodsList( GoodsItem, CreateButton, BASKET_LIST, BasketItem )
+const FORM = new CreateForm( CreateButton )

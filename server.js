@@ -1,9 +1,9 @@
-const http = require('http');
-const fs = require('fs');
+const HTTP = require('http');
+const FS = require('fs');
 
-const server = http.createServer((req, res) => {
-    const body = verifyUrl(req.url);
-    res.end(body);
+const SERVER = HTTP.createServer((req, res) => {
+    const BODY = verifyUrl(req.url);
+    res.end(BODY);
 });
 
 function verifyUrl(url) {
@@ -13,10 +13,10 @@ function verifyUrl(url) {
         let urlAddress;
         if (url === '/') {
             urlAddress = urlDirectory + url + urlIndex;
-            return fs.readFileSync(urlAddress);
+            return FS.readFileSync(urlAddress);
         } else {
             urlAddress = urlDirectory + url;
-            return fs.readFileSync(urlAddress);
+            return FS.readFileSync(urlAddress);
         }
     } catch (e) {
         console.log('Ошибка ' + e.name + ":" + e.message + "\n" + e.stack);
@@ -25,8 +25,8 @@ function verifyUrl(url) {
     
 }
 
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-server.listen(port);
+SERVER.listen(PORT);
 
-console.log(`Server started on port ${port}!`);
+console.log(`Server started on port ${PORT}!`);
