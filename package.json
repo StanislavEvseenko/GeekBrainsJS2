@@ -5,7 +5,9 @@
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "webpack",
+    "dev": "webpack serve --hot --config webpack.dev.config.js"
   },
   "repository": {
     "type": "git",
@@ -17,5 +19,20 @@
   "bugs": {
     "url": "https://github.com/StanislavEvseenko/GeekBrainsJS2/issues"
   },
-  "homepage": "https://github.com/StanislavEvseenko/GeekBrainsJS2#readme"
+  "homepage": "https://github.com/StanislavEvseenko/GeekBrainsJS2#readme",
+  "devDependencies": {
+    "webpack": "^5.15.0",
+    "webpack-cli": "^4.3.1"
+  },
+  "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-function-bind": "^7.12.1",
+    "babel": "^6.23.0",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.0.1",
+    "style-loader": "^2.0.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.7.3"
+  }
 }

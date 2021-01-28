@@ -1,7 +1,0 @@
-{
-    "data": [
-        { "name": "apple", "price": 11500 },
-        { "name": "samsung", "price": 10450 },
-        { "name": "xiaomi", "price": 9020 }
-      ]
-}

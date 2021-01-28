@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "name": "meizu", "price": 108 },
+    { "name": "asus", "price": 1500 },
+    { "name": "acer", "price": 1350 }
+    ]
+}
